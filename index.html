@@ -10,22 +10,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
     <style>
-        /* .modal{
-            padding-right: 0px !important;
+        /* 解決 bootStrap Modal 互動視窗 顯示 造成畫面抖動問題 */
+        body.modal-open {
+            overflow-y: auto !important;        
+            padding-right: 0 !important;
         }
-        body{
-            padding-right: 0px !important;
-        } */
+        /* body { 
+            padding-right: 0 !important; 
+        }  */
     </style>
-  <script type="module" crossorigin src="/js-finally/assets/index-319f61f5.js"></script>
-  <link rel="modulepreload" crossorigin href="/js-finally/assets/main-3864b780.js">
-  <link rel="stylesheet" href="/js-finally/assets/main-0805ded8.css">
+  <script type="module" crossorigin src="/js-finally/assets/index-1546d577.js"></script>
+  <link rel="modulepreload" crossorigin href="/js-finally/assets/axios-55335edb.js">
+  <link rel="stylesheet" href="/js-finally/assets/axios-153f765f.css">
 </head>
 <body class="">
 
-    <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        Launch demo modal
-    </button> -->
+
       
       <!-- Modal -->
       <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
