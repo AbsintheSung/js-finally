@@ -23,25 +23,8 @@
 <body class="">
 
 
-      
-      <!-- Modal -->
-      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              ...
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-          </div>
-        </div>
-      </div>
+  
+
 
     <nav class="topBar">
         <div class="wrap">
@@ -443,7 +426,7 @@
     </section>
     <section class="orderInfo wrap" id="orderInfo">
         <h3 class="section-title">填寫預訂資料</h3>
-        <form action="" class="orderInfo-form ">
+        <form action="" class="orderInfo-form">
             <div class="orderInfo-formGroup">
                 <label for="customerName" class="orderInfo-label">姓名</label>
                 <div class="orderInfo-inputWrap">
@@ -482,14 +465,15 @@
                     </select>
                 </div>
             </div>
-            <input type="submit" value="送出預訂資料" class="orderInfo-btn"   data-bs-toggle="modal" data-bs-target="#exampleModal" >
+            <input type="submit" value="送出預訂資料" class="orderInfo-btn"   >
             
         </form>
     </section>
 
+    
 
 
-
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="../js/scroll.js"></script>
     <script type="module" src="../main.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/validate.js/0.13.1/validate.min.js"></script>
@@ -507,15 +491,16 @@
             let finalTotal = document.querySelector('.final-total')
             let discardAllBtn = document.querySelector('.discardAllBtn')
 
+
             let form = document.querySelector("form");
             let orderInfoInput = document.querySelectorAll('.orderInfo-input')
             let orderInfoMessage = document.querySelectorAll('.orderInfo-message')
             let orderInfoBtn = document.querySelector('.orderInfo-btn')
    
-
+            let fragment = document.createDocumentFragment(); // 用於 添加多個D0OM元素時，不是直接一個一個添加，而是另一處新增完，再一次性的添加到dom元素上，以減少dom元素操作 提高性能
             let showCartTable = document.querySelector('.show-cart-table')
             let showNoCart = document.querySelector('.show-no-cart')
-            // let cartLoading = document.querySelector('.cart-loading')
+            let modalBody = document.querySelector('.modal-body')
             
             let productData = [] //遠端獲取產品列表資料後，所暫存的陣列。
             let productDataDom = [] // productData內的 dom元素
@@ -526,12 +511,11 @@
             let cartLoadBtnDom = [] // 存放 刪除 顯示轉圈圈 按鈕 的dom元素
             let delBtnDom = [] //購物車 X的DOM元素
            
-           
+            
             let addCartLoadStatus = true  //新增商品的鎖，等待回傳成功，才能再次新增
             let delCartLoadStatus = true //刪除商品的鎖，等待回傳成功，才能再次刪除
-
             
-            let fragment = document.createDocumentFragment(); // 用於 添加多個D0OM元素時，不是直接一個一個添加，而是另一處新增完，再一次性的添加到dom元素上，以減少dom元素操作 提高性能
+            
 
             /*-----畫面處理-----*/
 
@@ -554,7 +538,7 @@
                 })
             }
 
-            //產品列表 加入購物車 樣式切換
+            //產品列表 加入購物車 樣式切換 ( 點加入購物車 其他沒點到的 按鈕文字顏色改變 且 取消 hover 效果 )
             function changeAddStyle(status){
                 if( !status ){
                     addCardBtnDom.forEach(function(item){
@@ -617,12 +601,7 @@
             
     
 
-            //關閉表單警告格式錯誤訊息
-            function closeFormMessage(){
-                orderInfoMessage.forEach(function(item){
-                    item.textContent = ''
-                })
-            }
+      
 
             //顯示 產品列表 加入商品時的 loading圖案
             function productLoadingShow(index){
@@ -641,6 +620,7 @@
                 
             }
 
+            //點刪除，沒被點到刪除的顏色更改 且 取消 hover 效果
             function delBtnDomStyle(status){
                 if(!status){
                     delBtnDom.forEach(function(item){
@@ -651,7 +631,6 @@
                         item.classList.remove('del-loading')
                     })
                 }
-             
             }
 
              //顯示/隱藏 刪除轉圈圈 跟 X按鈕
@@ -698,7 +677,6 @@
                 let index = productData.findIndex(function(item){
                     return item.id === id
                 })
-                console.log(index,productLoadindDom)
                 return index
             }
 
@@ -708,7 +686,6 @@
                     return item.id === id
                 })
                 return cartIndex
-                // console.log(cartIndex)
             }
    
 
@@ -731,19 +708,28 @@
                         changeAddStyle(addCartLoadStatus)
                         try {
                             let addCartRes = await addShopCartServer(product.id,product.quantity) //將前端資料傳送到後端(加入購物車)
-                            console.log('新增購物車項目回應',addCartRes)
+                            // console.log('新增購物車項目回應',addCartRes)
                             shopCartData = addCartRes.data.carts
                             addCartLoadStatus = true
                             upDateShopCartDom()
                             productLoadingClose(loadingIndex)
                             changeAddStyle(addCartLoadStatus)
+                            swal({
+                                icon: "success",
+                                title:'商品已加入購物車!!'
+                            });
                             finalTotal.textContent = `NT$ ${addCartRes.data.finalTotal.toLocaleString()}`
                         }catch (error) {
-                            productLoadingClose(loadingIndex)
+                            if(!error.response.data.status){
+                                swal({
+                                    icon: "error",
+                                    title:`${error.response.data.message}`
+                                });
+                            }
                             addCartLoadStatus = true
+                            productLoadingClose(loadingIndex)
+                            changeAddStyle(addCartLoadStatus)
                         }
-                    }else{
-                        console.log('我還在跑，慢點再點')
                     }
  
                 }       
@@ -751,7 +737,6 @@
             })
             //產品列表 篩選
             productSelect.addEventListener('change', function(e){
-                // console.log(productData)
                 let str = e.target.value 
                 if(e.target.value === '全部'){
                     //點擊 全部 將所有列表顯示
@@ -781,16 +766,25 @@
                        delBtnDomStyle(delCartLoadStatus)
                         try{
                             let delCartRes = await delShopCartServer(delId) //發送 刪除該筆購物車項目請求(單筆)
-                            console.log('刪除單筆購物車項目回應',delCartRes.data)
+                            // console.log('刪除單筆購物車項目回應',delCartRes.data)
                             shopCartData = delCartRes.data.carts
-
-                            upDateShopCartDom()
-
                             delCartLoadStatus = true
+                            upDateShopCartDom()
                             delBtnDomStyle(delCartLoadStatus)
+                            swal({
+                                icon: "success",
+                                title:'已將商品移除'
+                            });
                             finalTotal.textContent = `NT$ ${delCartRes.data.finalTotal.toLocaleString()}`
                         }catch(errer){
-
+                            if(!error.response.data.status){
+                                swal({
+                                    icon: "error",
+                                    title:`${error.response.data.message}`
+                                });
+                            }
+                            delCartLoadStatus = true
+                            delBtnDomStyle(delCartLoadStatus)
                         }
                     }
 
@@ -805,16 +799,28 @@
                 try{
                     delCartLoadAll()
                     let delAllRes = await delAllShopCartServer() //發送 刪除全部購物車項目請求
-                    console.log('刪除全部購物車項目回應',delAllRes.data)
+                    // console.log('刪除全部購物車項目回應',delAllRes.data)
                     shopCartData = delAllRes.data.carts
                     delCartLoadStatus = true
                     upDateShopCartDom()
                     delBtnDomStyle(delCartLoadStatus)
+                    swal({
+                            icon: "error",
+                            title:'已將商品全部移除',
+                            // button: false,
+                        });
                     finalTotal.textContent = `NT$ ${delAllRes.data.finalTotal.toLocaleString()}`
 
                     // cartLoading.style.display ='none'
                 }catch(errer){
-
+                    if(!error.response.data.status){
+                        swal({
+                            icon: "error",
+                            title:`${error.response.data.message}`
+                        });
+                    }
+                    delCartLoadStatus = true
+                    delBtnDomStyle(delCartLoadStatus)
                 }
 
             })
@@ -836,20 +842,24 @@
                     productLoadindDom =Array.from(document.querySelectorAll('.loadind-btn')) 
                     cartLoadBtnDom = Array.from(document.querySelectorAll('.loadind-cart'))
                     delBtnDom = document.querySelectorAll('.a-delbtn')
-                    
                     addCardBtnDom = document.querySelectorAll('.addCardBtn')
-                    console.log(addCardBtnDom)
 
                     finalTotal.textContent = `NT$ ${getShopCartData.data.finalTotal.toLocaleString()}`
                     
                 }catch(error){
-                    console.log(error)
+                    if(!error.response.data.status){
+                        swal({
+                            icon: "error",
+                            title:`${error.response.data.message}`
+                        });
+                    }
                 }
                
             }
             //初始化
             initialization()
 
+            
             let constraints = {
                 "姓名": {// 對應 input 的 name
                     presence:{
@@ -875,25 +885,16 @@
                     },
                 }
             };
-
-
-    
-         
-    
-       
-                                                        
+            
             orderInfoBtn.addEventListener('click',async function(e){
-                e.preventDefault()
-         
+                e.preventDefault()        
                 const errorMessage = validate(form, constraints);
                 if(errorMessage){
-                    // console.log('有錯誤喔')
                     let temp =  saveFormError(errorMessage)
                     showFormMessage(temp)
                     return 
                 }
                 closeFormMessage()
-
                 let user={
                     name:orderInfoInput[0].value,
                     tel:orderInfoInput[1].value,
@@ -901,25 +902,41 @@
                     address:orderInfoInput[3].value,
                     payment:orderInfoInput[4].value
                 }
-
-                // try{
-                //     let senDataRes = await sendUserDate(user)
-                //     console.log('傳送訂單成功後回應',senDataRes)
-                //     if(senDataRes.status){
-                //         shopCartData =[]
-                //         upDateShopCartDom()
-                //         finalTotal.textContent = `NT$ ${0}`
- 
-                //     }
-                    
-
-                // }catch(error){
-
-                // }
-               
-
+                try{
+                    let senDataRes = await sendUserDate(user)
+                    // console.log('傳送訂單成功後回應',senDataRes)
+                    if(senDataRes.status){
+                        shopCartData =[]
+                        upDateShopCartDom()
+                        swal({
+                            icon: "success",
+                            title:'訂單已成立'
+                        });
+                        form.reset()
+                        finalTotal.textContent = `NT$ ${0}`
+                        
+                    }
+                }catch(error){
+                    // console.log(error)
+                    if(!error.response.data.status){
+                        swal({
+                            title: "傳送失敗",
+                            text: `${error.response.data.message}`,
+                            icon: "error",
+                        });
+                    }
+                }
             })
-          
+
+            
+            //關閉表單警告格式錯誤訊息
+            function closeFormMessage(){
+                orderInfoMessage.forEach(function(item){
+                    item.textContent = ''
+                })
+            }
+
+            //針對表單格式錯誤訊息做處理
             function saveFormError(error){
                 let temp = []
                 let orderInfoMessageIndex={
@@ -936,6 +953,7 @@
                 })
                 return temp
             }
+            //透過上方 saveFormError() 設定 可以直接對應各input的錯誤
             function showFormMessage(array){
                 for(let i =0 ;i < array.length;i++){
                     orderInfoMessage[ array[i][0] ].style.display ='block'
