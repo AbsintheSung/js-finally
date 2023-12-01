@@ -365,14 +365,7 @@
             <p>目前無任何商品</p>
         </div>
         <div class="overflowWrap show-cart-table">
-            <div class="cart-loading ">
-                <div class="d-flex justify-content-center align-items-center w-100 h-100">
-                    <div class="spinner-border " style="width: 5rem; height: 5rem;" role="status">
-                        <span class="visually-hidden ">Loading...</span>
-                    </div>
-                </div>
-            
-            </div>
+          
             <table class="shoppingCart-table">
                 <tbody class="tbody">
                    
@@ -479,6 +472,7 @@
 
         (function(){
             let productList = document.querySelector('.productWrap')
+           
             let shopCartTable = document.querySelector('.shoppingCart-table')
             let shopCartTbody =document.querySelector('.tbody')
             let productSelect = document.querySelector('.productSelect')
@@ -498,6 +492,7 @@
             let productData = [] //遠端獲取產品列表資料後，所暫存的陣列。
             let productDataDom = [] // productData內的 dom元素
             let productLoadindDom =[] //存放 產品列表 的加入購物車的 轉圈圈 dom元素
+            let addCardBtnDom = [] //產品列表 中 的 加入購物車 a連結dom元素
             
             let shopCartData = [] //遠端獲取 購物車資料後，所暫存的陣列。
             let cartLoadBtnDom = [] // 存放 刪除 顯示轉圈圈 按鈕 的dom元素
@@ -529,6 +524,20 @@
                     }
                 })
             }
+
+            //產品列表 加入購物車 樣式切換
+            function changeAddStyle(status){
+                if( !status ){
+                    addCardBtnDom.forEach(function(item){
+                        item.classList.add('add-loading')
+                    })
+                }else{
+                    addCardBtnDom.forEach(function(item){
+                        item.classList.remove('add-loading')
+                    })
+                }
+            }
+
 
             //掛載購物車列表 DOM元素
             function mountShopCartDOM(array,dom){
@@ -569,7 +578,8 @@
                 delBtnDom =  Array.from(document.querySelectorAll('.a-delbtn'))
                 // finalTotal.textContent = `NT$ ${obj.finalTotal.toLocaleString()}`
             }
-
+            
+    
 
             //關閉表單警告格式錯誤訊息
             function closeFormMessage(){
@@ -666,15 +676,17 @@
                     if(addCartLoadStatus){
                         let  loadingIndex = productLoadingIndex(pruductId)
                         let product = verifyQuantity(pruductId)
-                        productLoadingShow(loadingIndex)
                         addCartLoadStatus = false
+                        productLoadingShow(loadingIndex)
+                        changeAddStyle(addCartLoadStatus)
                         try {
                             let addCartRes = await addShopCartServer(product.id,product.quantity) //將前端資料傳送到後端(加入購物車)
                             console.log('新增購物車項目回應',addCartRes)
                             shopCartData = addCartRes.data.carts
+                            addCartLoadStatus = true
                             upDateShopCartDom()
                             productLoadingClose(loadingIndex)
-                            addCartLoadStatus = true
+                            changeAddStyle(addCartLoadStatus)
                             finalTotal.textContent = `NT$ ${addCartRes.data.finalTotal.toLocaleString()}`
                         }catch (error) {
                             productLoadingClose(loadingIndex)
@@ -766,11 +778,14 @@
                     mountProductDOM(productData,productList)
                     mountShopCartDOM(shopCartData,shopCartTbody)
                     showCartMessage(shopCartData)
-
+                    
                     productDataDom = Array.from(document.querySelectorAll('.productCard'))
                     productLoadindDom =Array.from(document.querySelectorAll('.loadind-btn')) 
                     cartLoadBtnDom = Array.from(document.querySelectorAll('.loadind-cart'))
                     delBtnDom = document.querySelectorAll('.a-delbtn')
+                    
+                    addCardBtnDom = document.querySelectorAll('.addCardBtn')
+                    console.log(addCardBtnDom)
 
                     finalTotal.textContent = `NT$ ${getShopCartData.data.finalTotal.toLocaleString()}`
                     
