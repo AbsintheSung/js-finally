@@ -10,19 +10,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
     <style>
-        /* .modal{
-            padding-right: 0px !important;
+        /* 解決 bootStrap Modal 互動視窗 顯示 造成畫面抖動問題 */
+        body.modal-open {
+            overflow-y: auto !important;        
+            padding-right: 0 !important;
         }
-        body{
-            padding-right: 0px !important;
-        } */
+        /* body { 
+            padding-right: 0 !important; 
+        }  */
     </style>
 </head>
 <body class="">
 
-    <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        Launch demo modal
-    </button> -->
+
       
       <!-- Modal -->
       <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -638,6 +638,20 @@
             function delCartLoadView(index){
                 cartLoadBtnDom[index].style.display = 'block'
                 delBtnDom[index].style.display  = 'none'
+                
+            }
+
+            function delBtnDomStyle(status){
+                if(!status){
+                    delBtnDom.forEach(function(item){
+                       item.classList.add('del-loading')
+                    })
+                }else{
+                    delBtnDom.forEach(function(item){
+                        item.classList.remove('del-loading')
+                    })
+                }
+             
             }
 
              //顯示/隱藏 刪除轉圈圈 跟 X按鈕
@@ -761,9 +775,10 @@
                 let delOne = e.target.getAttribute('data-delBtn')
                 if(delOne === 'delOneData'){
                     if(delCartLoadStatus){
-        
-                        delCartLoadView( delCartLoadIndex(delId) )
+
                         delCartLoadStatus = false
+                        delCartLoadView( delCartLoadIndex(delId) )
+                       delBtnDomStyle(delCartLoadStatus)
                         try{
                             let delCartRes = await delShopCartServer(delId) //發送 刪除該筆購物車項目請求(單筆)
                             console.log('刪除單筆購物車項目回應',delCartRes.data)
@@ -772,7 +787,7 @@
                             upDateShopCartDom()
 
                             delCartLoadStatus = true
-
+                            delBtnDomStyle(delCartLoadStatus)
                             finalTotal.textContent = `NT$ ${delCartRes.data.finalTotal.toLocaleString()}`
                         }catch(errer){
 
@@ -786,13 +801,15 @@
             discardAllBtn.addEventListener('click',async function(e){
                 e.preventDefault()
                 delCartLoadStatus = false
+                delBtnDomStyle(delCartLoadStatus)
                 try{
                     delCartLoadAll()
                     let delAllRes = await delAllShopCartServer() //發送 刪除全部購物車項目請求
                     console.log('刪除全部購物車項目回應',delAllRes.data)
                     shopCartData = delAllRes.data.carts
-                    upDateShopCartDom()
                     delCartLoadStatus = true
+                    upDateShopCartDom()
+                    delBtnDomStyle(delCartLoadStatus)
                     finalTotal.textContent = `NT$ ${delAllRes.data.finalTotal.toLocaleString()}`
 
                     // cartLoading.style.display ='none'
@@ -862,36 +879,8 @@
 
     
          
+    
        
-            var myModalEl = document.getElementById('exampleModal')
-            myModalEl.addEventListener('show.bs.modal', function (event) {
-                // do something...
-                document.querySelector('body').style.paddingRight = '0px'
-                document.querySelector('.modal').style.paddingRight = '0px'
-                console.log(1)
-            })
-            myModalEl.addEventListener('shown.bs.modal', function (event) {
-                // do something...
-                document.querySelector('body').style.paddingRight = '0px'
-                document.querySelector('.modal').style.paddingRight = '0px'
-                console.log(2)
-
-            })
-            myModalEl.addEventListener('hide.bs.modal', function (event) {
-                // do something...
-                document.querySelector('body').style.paddingRight = '0px'
-                document.querySelector('.modal').style.paddingRight = '0px'
-                console.log(3)
-
-            })
-              
-            myModalEl.addEventListener('hidden.bs.modal', function (event) {
-                // do something...
-                document.querySelector('body').style.paddingRight = '0px'
-                document.querySelector('.modal').style.paddingRight = '0px'
-                console.log(4)
-
-            })
                                                         
             orderInfoBtn.addEventListener('click',async function(e){
                 e.preventDefault()

@@ -71,3 +71,13 @@ export function sendUserDate({name,tel,email,address,payment}){
         }
     })
 }
+
+
+export function getOrderAdmin(){
+    return httpInstance({
+        url:`/${urlPath}/products`,
+        method:'GET',
+        'Authorization':token,
+    })
+}
+
