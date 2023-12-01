@@ -1,17 +1,21 @@
+let fragment = document.createDocumentFragment();
 function createLoadingBtn(){
     /*
         <button class="spinner-border text-success disabled bg-black" role="status">
             <span class="visually-hidden">Loading...</span>
         </button> 
     */
-   let btn = document.createElement('button')
-   let spanText = document.createElement('span')
-   btn.classList.add('loadind-btn','spinner-border','text-white','bg-dark')
-   btn.role ='status'
-   spanText.classList.add('visually-hidden')
-   spanText.textContent = 'Loading...'
-   btn.appendChild(spanText)
-   return btn
+    let btn = document.createElement('button')
+    let spanText = document.createElement('span')
+    btn.classList.add('loadind-btn','spinner-border','text-white','bg-dark')
+    btn.role ='status'
+    spanText.classList.add('visually-hidden')
+    spanText.textContent = 'Loading...'
+
+    // btn.appendChild(spanText)
+    fragment.appendChild(spanText)
+    btn.appendChild(fragment)
+    return btn
 }
 
 
@@ -40,12 +44,19 @@ export function createLi(obj){
     p_text.classList.add('nowPrice')
     p_text.textContent =`NT$ ${obj.price.toLocaleString()}`
     Li.classList.add('productCard')
-    Li.appendChild(title_4)
-    Li.appendChild(img)
-    Li.appendChild(a_link)
-    Li.appendChild(title_3)
-    Li.appendChild(del)
-    Li.appendChild(p_text)
+    // Li.appendChild(title_4)
+    // Li.appendChild(img)
+    // Li.appendChild(a_link)
+    // Li.appendChild(title_3)
+    // Li.appendChild(del)
+    // Li.appendChild(p_text)
+    fragment.appendChild(title_4)
+    fragment.appendChild(img)
+    fragment.appendChild(a_link)
+    fragment.appendChild(title_3)
+    fragment.appendChild(del)
+    fragment.appendChild(p_text)
+    Li.appendChild(fragment)
     return Li 
 }
 

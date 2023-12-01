@@ -1,18 +1,28 @@
-function tdTitle(obj){
-    let td_title =  document.createElement('td')
+let fragment = document.createDocumentFragment();
+function createTitleContent(images,title){
+
     let div = document.createElement('div')
     let img = new Image();
     let p_text = document.createElement('p')
     div.classList.add('cardItem-title')
-    img.src=`${obj.images}`
+    img.src=`${images}`
     img.alt="圖片"
-    p_text.textContent=`${obj.title}`
-    div.appendChild(img)
-    div.appendChild(p_text)
-    td_title.appendChild(div)
+    p_text.textContent=`${title}`
+    fragment.appendChild(img)
+    fragment.appendChild(p_text)
+    div.appendChild(fragment)
+    return div
+}
+function tdTitle(obj){
+    let td_title =  document.createElement('td')
+    let div = createTitleContent(obj.images,obj.title)
+
+    fragment.appendChild(div)
+    td_title.appendChild(fragment)
     return td_title
 }
 function tdDelBtn(id){
+    let fragment = document.createDocumentFragment();
     let td_del =  document.createElement('td')
     let a_link = document.createElement('a')
     let loadBtn = createLoadingBtn()
@@ -22,28 +32,30 @@ function tdDelBtn(id){
     a_link.textContent = 'clear'
     a_link.setAttribute('data-delcartid',`${id}`)
     a_link.setAttribute('data-delbtn',`delOneData`)
-    td_del.appendChild(a_link)
-    td_del.appendChild(loadBtn)
+
+    fragment.appendChild(a_link)
+    fragment.appendChild(loadBtn)
+    td_del.appendChild(fragment)
     return td_del
 }
 function createLoadingBtn(){
-    /*
-        <button class="spinner-border text-success disabled bg-black" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </button> 
-    */
-   let btn = document.createElement('button')
-   let spanText = document.createElement('span')
-   btn.classList.add('loadind-cart','spinner-border','text-dark')
-   btn.role ='status'
-   spanText.classList.add('visually-hidden')
-   spanText.textContent = 'Loading...'
-   btn.appendChild(spanText)
-   return btn
+
+    let btn = document.createElement('button')
+    let spanText = document.createElement('span')
+    btn.classList.add('loadind-cart','spinner-border','text-dark')
+    btn.role ='status'
+    spanText.classList.add('visually-hidden')
+    spanText.textContent = 'Loading...'
+
+
+    fragment.appendChild(spanText)
+    btn.appendChild(fragment)
+    return btn
 }
 
 
 export function createShopCartItem(array){
+
     let trBox = document.createElement('tr');
     let td_title = tdTitle(array.product)
     let td_price =  document.createElement('td')
@@ -54,10 +66,12 @@ export function createShopCartItem(array){
     td_price.textContent=`NT$${array.product.price.toLocaleString()}`
     td_count.textContent=array.quantity
     td_total.textContent=`NT$${array.product.price.toLocaleString()}`
-    trBox.appendChild(td_title)
-    trBox.appendChild(td_price)
-    trBox.appendChild(td_count)
-    trBox.appendChild(td_total)
-    trBox.appendChild(td_del)
+
+    fragment.appendChild(td_title)
+    fragment.appendChild(td_price)
+    fragment.appendChild(td_count)
+    fragment.appendChild(td_total)
+    fragment.appendChild(td_del)
+    trBox.appendChild(fragment)
     return trBox
 }

@@ -503,7 +503,7 @@
             let delCartLoadStatus = true //刪除商品的鎖，等待回傳成功，才能再次刪除
 
             
-
+            let fragment = document.createDocumentFragment(); // 用於 插入DOM元素時 提高性能
 
             /*-----畫面處理-----*/
 
@@ -511,8 +511,9 @@
             function mountProductDOM(array,dom){
                 array.forEach(function(item){
                     let temp = createLi(item)
-                    dom.appendChild(temp)
+                    fragment.appendChild(temp)
                 })
+                dom.appendChild(fragment)
             }
             // 篩選產品列表 dom元素 根據所篩選做 隱藏 跟 顯示
             function selectProductView(array){
@@ -541,23 +542,30 @@
 
             //掛載購物車列表 DOM元素
             function mountShopCartDOM(array,dom){
+             
                 let tempLength = shopCartTable.getElementsByTagName('tr').length - 1
                 let lastDom = shopCartTable.getElementsByTagName('tr')[tempLength]
                 array.forEach(function(item){
                     let temp = createShopCartItem(item)
-                    dom.insertBefore(temp,lastDom)
+                    fragment.appendChild(temp)
                 })
+                dom.insertBefore(fragment,lastDom)
             }
             //清空購物車列表 DOM元素
             function resetShopCartDOM(){
+               
                 let domLength = shopCartTable.getElementsByTagName('tr').length - 1
                 let firstDom =shopCartTable.getElementsByTagName('tr')[0]
                 let lastDom = shopCartTable.getElementsByTagName('tr')[domLength]
                 while(shopCartTbody.firstChild){
                     shopCartTbody.removeChild(shopCartTbody.firstChild)
                 }
-                shopCartTbody.appendChild(firstDom)
-                shopCartTbody.appendChild(lastDom)
+                       
+                fragment.appendChild(firstDom)
+                fragment.appendChild(lastDom)
+                shopCartTbody.appendChild(fragment)
+                
+            
             }
             //server 回傳 若購物車沒東西，顯示/不顯示 相關訊息
             function showCartMessage(array){
@@ -847,20 +855,20 @@
                     payment:orderInfoInput[4].value
                 }
 
-                try{
-                    let senDataRes = await sendUserDate(user)
-                    console.log('傳送訂單成功後回應',senDataRes)
-                    if(senDataRes.status){
-                        shopCartData =[]
-                        upDateShopCartDom()
-                        finalTotal.textContent = `NT$ ${0}`
+                // try{
+                //     let senDataRes = await sendUserDate(user)
+                //     console.log('傳送訂單成功後回應',senDataRes)
+                //     if(senDataRes.status){
+                //         shopCartData =[]
+                //         upDateShopCartDom()
+                //         finalTotal.textContent = `NT$ ${0}`
  
-                    }
+                //     }
                     
 
-                }catch(error){
+                // }catch(error){
 
-                }
+                // }
                
 
             })
