@@ -755,7 +755,7 @@
                     let delAllRes = await delAllShopCartServer() //發送 刪除全部購物車項目請求
                     console.log('刪除全部購物車項目回應',delAllRes.data)
                     shopCartData = delAllRes.data.carts
-                    upDateShopCartDom(delAllRes.data)
+                    upDateShopCartDom()
                     delCartLoadStatus = true
                     finalTotal.textContent = `NT$ ${delAllRes.data.finalTotal.toLocaleString()}`
 
@@ -852,6 +852,7 @@
                     console.log('傳送訂單成功後回應',senDataRes)
                     if(senDataRes.status){
                         shopCartData =[]
+                        upDateShopCartDom()
                         finalTotal.textContent = `NT$ ${0}`
  
                     }
