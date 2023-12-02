@@ -15,11 +15,17 @@
             overflow-y: auto !important;        
             padding-right: 0 !important;
         }
-        /* body { 
-            padding-right: 0 !important; 
-        }  */
+
+
+        /* SweetAlert2 使用 錯誤彈框 內部跑版修正 */
+        .swal2-error {
+            margin: 2.5em auto .6em !important;
+            border: 0.25em solid rgba(0,0,0,0) !important;
+            border-color: #f27474 !important;
+
+        }
     </style>
-  <script type="module" crossorigin src="/js-finally/assets/index-f600b8ad.js"></script>
+  <script type="module" crossorigin src="/js-finally/assets/index-b33e6ae7.js"></script>
   <link rel="modulepreload" crossorigin href="/js-finally/assets/axios-55335edb.js">
   <link rel="stylesheet" href="/js-finally/assets/axios-153f765f.css">
 </head>
@@ -476,7 +482,8 @@
     
 
 
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../js/scroll.js"></script>
     
     <script src="//cdnjs.cloudflare.com/ajax/libs/validate.js/0.13.1/validate.min.js"></script>
