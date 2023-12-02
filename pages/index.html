@@ -15,9 +15,15 @@
             overflow-y: auto !important;        
             padding-right: 0 !important;
         }
-        /* body { 
-            padding-right: 0 !important; 
-        }  */
+
+
+        /* SweetAlert2 使用 錯誤彈框 內部跑版修正 */
+        .swal2-error {
+            margin: 2.5em auto .6em !important;
+            border: 0.25em solid rgba(0,0,0,0) !important;
+            border-color: #f27474 !important;
+
+        }
     </style>
 </head>
 <body class="">
@@ -473,7 +479,8 @@
     
 
 
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../js/scroll.js"></script>
     <script type="module" src="../main.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/validate.js/0.13.1/validate.min.js"></script>
@@ -688,9 +695,26 @@
                 return cartIndex
             }
    
-
- 
-
+            //使用 swal套件 的 toast設定
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top",
+                showConfirmButton: false,
+                timer: 1500,
+                // timerProgressBar: true,
+                background :'#9D9D9D',
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            // swal套件使用
+            function toastAlert(icon,title){
+                Toast.fire({
+                    icon: icon,
+                    title: title
+                },)
+            }
 
             
             /*-----各項監聽-----*/
@@ -706,6 +730,7 @@
                         addCartLoadStatus = false
                         productLoadingShow(loadingIndex)
                         changeAddStyle(addCartLoadStatus)
+
                         try {
                             let addCartRes = await addShopCartServer(product.id,product.quantity) //將前端資料傳送到後端(加入購物車)
                             // console.log('新增購物車項目回應',addCartRes)
@@ -714,16 +739,17 @@
                             upDateShopCartDom()
                             productLoadingClose(loadingIndex)
                             changeAddStyle(addCartLoadStatus)
-                            swal({
-                                icon: "success",
-                                title:'商品已加入購物車!!'
-                            });
+                            toastAlert('success','已成功加入')
+              
                             finalTotal.textContent = `NT$ ${addCartRes.data.finalTotal.toLocaleString()}`
                         }catch (error) {
                             if(!error.response.data.status){
-                                swal({
+      
+                                Swal.fire({
                                     icon: "error",
-                                    title:`${error.response.data.message}`
+                                    title: " ",
+                                    text: `${error.response.data.message}`,
+         
                                 });
                             }
                             addCartLoadStatus = true
@@ -771,17 +797,18 @@
                             delCartLoadStatus = true
                             upDateShopCartDom()
                             delBtnDomStyle(delCartLoadStatus)
-                            swal({
-                                icon: "success",
-                                title:'已將商品移除'
-                            });
+                            toastAlert('success','已將商品移除')
+             
                             finalTotal.textContent = `NT$ ${delCartRes.data.finalTotal.toLocaleString()}`
                         }catch(errer){
                             if(!error.response.data.status){
-                                swal({
+                                Swal.fire({
                                     icon: "error",
-                                    title:`${error.response.data.message}`
+                                    title: " ",
+                                    text: `${error.response.data.message}`,
+
                                 });
+        
                             }
                             delCartLoadStatus = true
                             delBtnDomStyle(delCartLoadStatus)
@@ -804,20 +831,20 @@
                     delCartLoadStatus = true
                     upDateShopCartDom()
                     delBtnDomStyle(delCartLoadStatus)
-                    swal({
-                            icon: "error",
-                            title:'已將商品全部移除',
-                            // button: false,
-                        });
+                    toastAlert('success','已將商品全部移除')
+     
                     finalTotal.textContent = `NT$ ${delAllRes.data.finalTotal.toLocaleString()}`
 
                     // cartLoading.style.display ='none'
                 }catch(errer){
                     if(!error.response.data.status){
-                        swal({
+                        Swal.fire({
                             icon: "error",
-                            title:`${error.response.data.message}`
+                            title: " ",
+                            text: `${error.response.data.message}`,
+  
                         });
+
                     }
                     delCartLoadStatus = true
                     delBtnDomStyle(delCartLoadStatus)
@@ -837,7 +864,7 @@
                     mountProductDOM(productData,productList)
                     mountShopCartDOM(shopCartData,shopCartTbody)
                     showCartMessage(shopCartData)
-                    
+                    console.log(productData)
                     productDataDom = Array.from(document.querySelectorAll('.productCard'))
                     productLoadindDom =Array.from(document.querySelectorAll('.loadind-btn')) 
                     cartLoadBtnDom = Array.from(document.querySelectorAll('.loadind-cart'))
@@ -848,9 +875,10 @@
                     
                 }catch(error){
                     if(!error.response.data.status){
-                        swal({
+                        Swal.fire({
                             icon: "error",
-                            title:`${error.response.data.message}`
+                            title: " ",
+                            text: `${error.response.data.message}`,
                         });
                     }
                 }
@@ -908,10 +936,11 @@
                     if(senDataRes.status){
                         shopCartData =[]
                         upDateShopCartDom()
-                        swal({
-                            icon: "success",
-                            title:'訂單已成立'
-                        });
+                        toastAlert('success','訂單已成立')
+                        // swal({
+                        //     icon: "success",
+                        //     title:'訂單已成立'
+                        // });
                         form.reset()
                         finalTotal.textContent = `NT$ ${0}`
                         
@@ -919,10 +948,10 @@
                 }catch(error){
                     // console.log(error)
                     if(!error.response.data.status){
-                        swal({
-                            title: "傳送失敗",
-                            text: `${error.response.data.message}`,
+                        Swal.fire({
                             icon: "error",
+                            title: " ",
+                            text: `${error.response.data.message}`,
                         });
                     }
                 }
