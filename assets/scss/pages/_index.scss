@@ -805,7 +805,7 @@ body {
 }
 
 .orderStatus a {
-  position: absolute;
+  // position: absolute;
   padding: 10px;
   top: 0;
   bottom: 0;
@@ -813,7 +813,7 @@ body {
   left: 0;
   display: block;
   text-decoration: none;
-  color: #FFFFFF;
+  // color: #FFFFFF;
 }
 
 .orderStatus-unDone {
@@ -888,4 +888,17 @@ body {
   pointer-events: none;
   color:#747474 !important;
 }
+.send-loading{
+  pointer-events: none;
+  color:#747474 !important;
+}
 
+.admin-table{
+  max-width: 1296px;
+}
+.title-show{
+  display: block;
+}
+.title-close{
+  display:none
+}

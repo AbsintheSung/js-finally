@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
     <style>
         /* 解決 bootStrap Modal 互動視窗 顯示 造成畫面抖動問題 */
-        body.modal-open {
+        body.swal2-shown  {
             overflow-y: auto !important;        
             padding-right: 0 !important;
         }
@@ -22,8 +22,16 @@
             margin: 2.5em auto .6em !important;
             border: 0.25em solid rgba(0,0,0,0) !important;
             border-color: #f27474 !important;
-
         }
+        /* .swal-correct{
+            margin: 2.5em auto .6em !important;
+        } */
+        .swal2-success{
+            margin: 2.5em auto .6em !important;
+        }
+   
+
+
     </style>
 </head>
 <body class="">
@@ -475,7 +483,7 @@
             
         </form>
     </section>
-
+ 
     
 
 
@@ -490,6 +498,7 @@
         import {createLi } from '../js/createLi.js'
 
         (function(){
+
             let productList = document.querySelector('.productWrap')
            
             let shopCartTable = document.querySelector('.shoppingCart-table')
@@ -521,7 +530,7 @@
             
             let addCartLoadStatus = true  //新增商品的鎖，等待回傳成功，才能再次新增
             let delCartLoadStatus = true //刪除商品的鎖，等待回傳成功，才能再次刪除
-            
+            let formSendStatus = true //表單傳送狀態
             
 
             /*-----畫面處理-----*/
@@ -694,26 +703,16 @@
                 })
                 return cartIndex
             }
-   
-            //使用 swal套件 的 toast設定
-            const Toast = Swal.mixin({
-                toast: true,
-                position: "top",
-                showConfirmButton: false,
-                timer: 1500,
-                // timerProgressBar: true,
-                background :'#9D9D9D',
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                }
-            });
+
             // swal套件使用
-            function toastAlert(icon,title){
-                Toast.fire({
+            function swalAlert(icon,title,time,show){
+    
+                Swal.fire({
                     icon: icon,
-                    title: title
-                },)
+                    title: title,
+                    timer:time ,
+                    showConfirmButton:show
+                });
             }
 
             
@@ -730,7 +729,7 @@
                         addCartLoadStatus = false
                         productLoadingShow(loadingIndex)
                         changeAddStyle(addCartLoadStatus)
-
+                    
                         try {
                             let addCartRes = await addShopCartServer(product.id,product.quantity) //將前端資料傳送到後端(加入購物車)
                             // console.log('新增購物車項目回應',addCartRes)
@@ -739,18 +738,13 @@
                             upDateShopCartDom()
                             productLoadingClose(loadingIndex)
                             changeAddStyle(addCartLoadStatus)
-                            toastAlert('success','已成功加入')
+                            swalAlert('success','已成功加入購物車',800,false)
+                    
               
                             finalTotal.textContent = `NT$ ${addCartRes.data.finalTotal.toLocaleString()}`
                         }catch (error) {
                             if(!error.response.data.status){
-      
-                                Swal.fire({
-                                    icon: "error",
-                                    title: " ",
-                                    text: `${error.response.data.message}`,
-         
-                                });
+                                swalAlert('error',`${error.response.data.message}`,false,true)
                             }
                             addCartLoadStatus = true
                             productLoadingClose(loadingIndex)
@@ -789,7 +783,7 @@
 
                         delCartLoadStatus = false
                         delCartLoadView( delCartLoadIndex(delId) )
-                       delBtnDomStyle(delCartLoadStatus)
+                        delBtnDomStyle(delCartLoadStatus)
                         try{
                             let delCartRes = await delShopCartServer(delId) //發送 刪除該筆購物車項目請求(單筆)
                             // console.log('刪除單筆購物車項目回應',delCartRes.data)
@@ -797,17 +791,12 @@
                             delCartLoadStatus = true
                             upDateShopCartDom()
                             delBtnDomStyle(delCartLoadStatus)
-                            toastAlert('success','已將商品移除')
+                            swalAlert('success','已將商品移除',800,false)
              
                             finalTotal.textContent = `NT$ ${delCartRes.data.finalTotal.toLocaleString()}`
                         }catch(errer){
                             if(!error.response.data.status){
-                                Swal.fire({
-                                    icon: "error",
-                                    title: " ",
-                                    text: `${error.response.data.message}`,
-
-                                });
+                                swalAlert("error",`${error.response.data.message}`,false,true)
         
                             }
                             delCartLoadStatus = true
@@ -821,34 +810,33 @@
             // 刪除全部購物車內容 按鈕
             discardAllBtn.addEventListener('click',async function(e){
                 e.preventDefault()
-                delCartLoadStatus = false
-                delBtnDomStyle(delCartLoadStatus)
-                try{
-                    delCartLoadAll()
-                    let delAllRes = await delAllShopCartServer() //發送 刪除全部購物車項目請求
-                    // console.log('刪除全部購物車項目回應',delAllRes.data)
-                    shopCartData = delAllRes.data.carts
-                    delCartLoadStatus = true
-                    upDateShopCartDom()
+                // delCartLoadStatus = false
+                // delBtnDomStyle(delCartLoadStatus)
+                if(delCartLoadStatus){
+                    delCartLoadStatus = false
                     delBtnDomStyle(delCartLoadStatus)
-                    toastAlert('success','已將商品全部移除')
-     
-                    finalTotal.textContent = `NT$ ${delAllRes.data.finalTotal.toLocaleString()}`
+                    try{
+                        delCartLoadAll()
+                        let delAllRes = await delAllShopCartServer() //發送 刪除全部購物車項目請求
+                        // console.log('刪除全部購物車項目回應',delAllRes.data)
+                        shopCartData = delAllRes.data.carts
+                        delCartLoadStatus = true
+                        upDateShopCartDom()
+                        delBtnDomStyle(delCartLoadStatus)
+                        swalAlert('success','已將商品全部移除',800,false)
+        
+                        finalTotal.textContent = `NT$ ${delAllRes.data.finalTotal.toLocaleString()}`
 
                     // cartLoading.style.display ='none'
-                }catch(errer){
-                    if(!error.response.data.status){
-                        Swal.fire({
-                            icon: "error",
-                            title: " ",
-                            text: `${error.response.data.message}`,
-  
-                        });
-
+                    }catch(errer){
+                        if(!error.response.data.status){
+                            swalAlert("error",`${error.response.data.message}`,false,true)
+                        }
+                        delCartLoadStatus = true
+                        delBtnDomStyle(delCartLoadStatus)
                     }
-                    delCartLoadStatus = true
-                    delBtnDomStyle(delCartLoadStatus)
                 }
+              
 
             })
             //初始化設定
@@ -875,11 +863,9 @@
                     
                 }catch(error){
                     if(!error.response.data.status){
-                        Swal.fire({
-                            icon: "error",
-                            title: " ",
-                            text: `${error.response.data.message}`,
-                        });
+                    
+                        swalAlert("error",`${error.response.data.message}`,false,true)
+                    
                     }
                 }
                
@@ -930,31 +916,32 @@
                     address:orderInfoInput[3].value,
                     payment:orderInfoInput[4].value
                 }
-                try{
-                    let senDataRes = await sendUserDate(user)
+                if(formSendStatus){
+                    formSendStatus = false
+                    orderInfoBtn.classList.add('send-loading')
+                    try{
+                        let senDataRes = await sendUserDate(user)
                     // console.log('傳送訂單成功後回應',senDataRes)
-                    if(senDataRes.status){
-                        shopCartData =[]
-                        upDateShopCartDom()
-                        toastAlert('success','訂單已成立')
-                        // swal({
-                        //     icon: "success",
-                        //     title:'訂單已成立'
-                        // });
-                        form.reset()
-                        finalTotal.textContent = `NT$ ${0}`
-                        
-                    }
-                }catch(error){
-                    // console.log(error)
-                    if(!error.response.data.status){
-                        Swal.fire({
-                            icon: "error",
-                            title: " ",
-                            text: `${error.response.data.message}`,
-                        });
+                        if(senDataRes.status){
+                            shopCartData =[]
+                            formSendStatus = true
+                            orderInfoBtn.classList.remove('send-loading')
+                            upDateShopCartDom()
+                            swalAlert("success",`訂單已成立`,false,true)
+                    
+                            form.reset()
+                            finalTotal.textContent = `NT$ ${0}`
+                        }
+                    }catch(error){
+                        // console.log(error)
+                        if(!error.response.data.status){
+                            swalAlert("error", `${error.response.data.message}`,false,true)
+                        }
+                        formSendStatus = true
+                        orderInfoBtn.classList.remove('send-loading')
                     }
                 }
+               
             })
 
             
