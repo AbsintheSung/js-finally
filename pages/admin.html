@@ -204,6 +204,14 @@
         }
 
         //資料處理
+
+        function paidResponse(id,array){ // 針對 處理/未處理 所回傳的布林值 來顯示alert內容
+            let result = array.find(function(item){
+                return id === item.id
+            })
+            return result.paid
+        }
+
         function changeOneDimensional(){ //將 orderData.products 全部取出後，轉成一維陣列
             if (orderData.length ===0) return []
             let temp = []
@@ -331,15 +339,25 @@
             if(reviseBtn ==='revisebtn'){
                 try {
                     let reviseRes = await reviseOrderAdmin(dataId,reviseStatus)
-                    // console.log('reviseRes回應',reviseRes)
+                    console.log('reviseRes回應',reviseRes)
                     // console.log(reviseRes.data.status,reviseRes.data.orders)
                     orderData = reviseRes.data.orders
-                    Swal.fire({
-                        icon: "success",
-                        title: " ",
-                        text: '買家已付款',
-                        timer:800
-                    });
+                    let paidRes = paidResponse(dataId,orderData)
+                    if(paidRes){
+                            Swal.fire({
+                            icon: "success",
+                            text: '買家已付款',
+                            timer:1000,
+                            showConfirmButton:false
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: "error",
+                            text: '買家未付款',
+                            timer:1000,
+                            showConfirmButton:false
+                        });
+                    }
                     resetOrder()
                     createOrder(orderData)
                     renderOrder()

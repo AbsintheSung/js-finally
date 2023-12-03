@@ -12,7 +12,7 @@ const httpInstanceAdmin = axios.create({
 //請求攔截
 httpInstanceAdmin.interceptors.request.use(function (config) {
     config.headers.Authorization = token
-    console.log('config in request interceptor', config);
+    // console.log('config in request interceptor', config);
 
     return config;
   }, function (error) {
