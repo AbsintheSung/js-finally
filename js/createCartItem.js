@@ -55,7 +55,6 @@ function createLoadingBtn(){
 
 
 export function createShopCartItem(array){
-
     let trBox = document.createElement('tr');
     let td_title = tdTitle(array.product)
     let td_price =  document.createElement('td')
@@ -63,9 +62,9 @@ export function createShopCartItem(array){
     let td_total =  document.createElement('td')
     let td_del =  tdDelBtn(array.id)
     trBox.classList.add('cartItem')
-    td_price.textContent=`NT$${array.product.price.toLocaleString()}`
+    td_price.textContent=`NT$${ array.product.price.toLocaleString() }`
     td_count.textContent=array.quantity
-    td_total.textContent=`NT$${array.product.price.toLocaleString()}`
+    td_total.textContent=`NT$${  (array.product.price*array.quantity).toLocaleString()}`
 
     fragment.appendChild(td_title)
     fragment.appendChild(td_price)
