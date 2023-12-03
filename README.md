@@ -11,7 +11,7 @@
   - 若沒有自動開啟瀏覽器，可嘗試手動在瀏覽器上輸入
     `http://localhost:5173/<專案名稱>/pages/index.html`
 - `npm run build` - 執行編譯模式（不會開啟瀏覽器）
-- `npm ru deploy` - 自動化部署
+- `npm run deploy` - 自動化部署
 
 ## 資料夾結構
   - assets # 靜態資源放置處
@@ -46,3 +46,6 @@ git push -u origin main // 僅限第一次輸入，往後只需要輸入 git pus
 ```
 
 3. 初始化完畢後，執行 `npm run deploy` 指令進行自動化部署
+
+4. 前台Page : https://absinthesung.github.io/js-finally/
+5. 後台Page : https://absinthesung.github.io/js-finally/admin.html
