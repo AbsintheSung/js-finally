@@ -852,7 +852,7 @@
                     mountProductDOM(productData,productList)
                     mountShopCartDOM(shopCartData,shopCartTbody)
                     showCartMessage(shopCartData)
-                    console.log(productData)
+                    // console.log(productData)
                     productDataDom = Array.from(document.querySelectorAll('.productCard'))
                     productLoadindDom =Array.from(document.querySelectorAll('.loadind-btn')) 
                     cartLoadBtnDom = Array.from(document.querySelectorAll('.loadind-cart'))
@@ -874,6 +874,7 @@
             initialization()
 
             
+            //表單 設定
             let constraints = {
                 "姓名": {// 對應 input 的 name
                     presence:{

@@ -204,7 +204,7 @@
         }
 
         //資料處理
-        function changeOneDimensional(){
+        function changeOneDimensional(){ //將 orderData.products 全部取出後，轉成一維陣列
             if (orderData.length ===0) return []
             let temp = []
       
@@ -214,25 +214,25 @@
             let result = temp.reduce(function(previousValue, currentValue){
                 return previousValue.concat(currentValue);
             }, []);
-            console.log('一開始要處理的',result)
+
             return result
         }
-        function typeRevenue(){
+        function typeRevenue(){ //透過 changeOneDimensional()的陣列 ，使用reduce 對 類別名稱 做價格上的相加，再轉成c3需要的陣列格式(二維)
   
             if (orderData.length ===0) return []
             let temp = changeOneDimensional()
             let key=[]
             let c3Array = []
-            console.log('類別 準備處理',temp)
+    
             let result = temp.reduce(function (allNames, name) {
                 if (name.category in allNames) {
                     allNames[name.category] =  allNames[name.category] + (name.price * name.quantity);
                 } else {
-                    allNames[name.title] = name.price * name.quantity;
+                    allNames[name.category] = name.price * name.quantity;
                 }
                 return allNames;
             }, {});
-            console.log('類別 以處理',result)
+
             key = Object.keys(result)
             key.forEach(function(item){
                 let temp = []
@@ -240,16 +240,17 @@
                 temp.push(result[item])
                 c3Array.push(temp)
             })
-   
-           return c3Array
+            return c3Array
         }
-        function allRevenue(){   
+
+        function allRevenue(){//透過 changeOneDimensional()的陣列 ，使用reduce 對 產品名稱 做價格上的相加，再轉成c3需要的陣列格式(二維)
 
             if (orderData.length ===0) return []   
             let temp = changeOneDimensional()
             let key=[]
             let sortArr = []
             let c3Array=[]
+            let rank = 3 //取前 3 個
             let result = temp.reduce(function (allNames, name) {
                 let temp  = name.title
                 if ( temp in allNames  ) {
@@ -259,7 +260,6 @@
                 }
                 return allNames;
             }, {});
-            console.log('全部 以處理',result)
             key = Object.keys(result)
             key.forEach(function(item){
                 let temp = []
@@ -271,12 +271,12 @@
             sortArr.sort(function(a,b){
                 return a[1]-b[1]
             })
-            if(sortArr.length < 3){
+            if(sortArr.length < rank){
                 return sortArr
             }else{
-                while(c3Array.length < 3 && temp.length!=0){ //取前3
+                while(c3Array.length < rank){ //取前3
                     c3Array.push(sortArr.pop())
-                    if(c3Array.length===3){
+                    if(c3Array.length === rank){
                         let otherNum = 0 
                         for( let i=0 ;i< sortArr.length;i++){
                             otherNum = otherNum + sortArr[i][1]
@@ -285,7 +285,6 @@
                     }
                 }
             }
-       
 
             return c3Array
         }
@@ -305,20 +304,7 @@
             });
         }
         
-        async function init(){
-            let getOrder = await getOrderAdmin()
-            // console.log(getOrder)
-            // console.log(getOrder.data.orders)
-            orderData = getOrder.data.orders
-            titleOne.style.display = 'block'
-            titleTwo.style.display = 'none'
-            console.log('初始化',orderData)
-            createOrder(orderData)
-            renderOrder()
-            allRevenue()
-            c3Generate( allRevenue() )
-        }
-        init()
+
 
         sectionRevenue.addEventListener('change',function(e){
             if(e.target.value === '類別營收比重'){
@@ -375,7 +361,7 @@
        
                 try {
                     let delOneRes = await delOneOrderAdmin(dataId)
-                    console.log('刪除回應',delOneRes.data.orders)
+                    // console.log('刪除回應',delOneRes.data.orders)
                     orderData = delOneRes.data.orders
                     if(delOneRes.data.status){
                         Swal.fire({
@@ -387,6 +373,8 @@
                     resetOrder()
                     createOrder(orderData)
                     renderOrder()
+
+                    //刪除 影響 orderData 內容，所以需要重新繪製 c3圖，當下根據所選的項目select 繪製
                     if(sectionRevenue.value === '全品項營收比重' ){
                         c3Generate( allRevenue() )
                     }else{
@@ -420,12 +408,9 @@
                 resetOrder()
                 createOrder(orderData)
                 renderOrder()
-                if(sectionRevenue.value === '全品項營收比重' ){
-                    c3Generate( allRevenue() )
-                }else{
-                    c3Generate( typeRevenue() )
-                }
-                // console.log('刪除回應全部回應',delAllRes.data)
+
+                //刪除 影響 orderData 內容，所以需要重新繪製 c3圖，產品全部清空，所以給予一空陣列繪製c3
+                c3Generate([])
 
             } catch (error) {
                 if(!error.response.data.status){
@@ -438,6 +423,20 @@
                 }
             }
         })
+
+        async function init(){
+            let getOrder = await getOrderAdmin()
+
+            orderData = getOrder.data.orders
+            titleOne.style.display = 'block'
+            titleTwo.style.display = 'none'
+
+            createOrder(orderData)
+            renderOrder()
+            allRevenue()
+            c3Generate( allRevenue() )
+        }
+        init()
 
 
 
