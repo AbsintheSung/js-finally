@@ -279,7 +279,6 @@
             sortArr.sort(function(a,b){
                 return a[1]-b[1]
             })
-            console.log(Array.from(sortArr))
             if(sortArr.length < rank){
                 return sortArr
             }else{
@@ -340,7 +339,7 @@
             if(reviseBtn ==='revisebtn'){
                 try {
                     let reviseRes = await reviseOrderAdmin(dataId,reviseStatus)
-                    console.log('reviseRes回應',reviseRes)
+                    // console.log('reviseRes回應',reviseRes)
                     // console.log(reviseRes.data.status,reviseRes.data.orders)
                     orderData = reviseRes.data.orders
                     let paidRes = paidResponse(dataId,orderData)
