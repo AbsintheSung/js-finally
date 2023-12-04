@@ -138,6 +138,8 @@
         let titleTwo = document.querySelector('.title-two')
         let orderData = []
         let str = ''
+        let deleteStatus = true //刪除 狀態 ( 回應前 使 使用者無法再度點擊，等待回應後才會開啟 )
+        let processStatus =true //處理 狀態 ( 回應前 使 使用者無法再度點擊，等待回應後才會開啟 )
 
         //畫面處理
         function createOrderTime(orderTime){
@@ -329,7 +331,8 @@
   
             }
         })
-
+        deleteStatus 
+        processStatus 
         orderPageTbody.addEventListener('click',async function(e){
             e.preventDefault()
             let dataId = e.target.getAttribute('data-id');
@@ -337,109 +340,135 @@
             let reviseStatus =changePaid( e.target.getAttribute('data-pain')  )
             let delBtn = e.target.getAttribute('data-orderbtn')
             if(reviseBtn ==='revisebtn'){
-                try {
-                    let reviseRes = await reviseOrderAdmin(dataId,reviseStatus)
-                    // console.log('reviseRes回應',reviseRes)
-                    // console.log(reviseRes.data.status,reviseRes.data.orders)
-                    orderData = reviseRes.data.orders
-                    let paidRes = paidResponse(dataId,orderData)
-                    if(paidRes){
+                if(processStatus){
+                    deleteStatus = false
+                    processStatus = false
+                    try {
+                        let reviseRes = await reviseOrderAdmin(dataId,reviseStatus)
+                        // console.log('reviseRes回應',reviseRes)
+                        // console.log(reviseRes.data.status,reviseRes.data.orders)
+                        orderData = reviseRes.data.orders
+                        let paidRes = paidResponse(dataId,orderData)
+                        if(paidRes){
+                                Swal.fire({
+                                icon: "success",
+                                text: '買家已付款',
+                                timer:1000,
+                                showConfirmButton:false
+                            });
+                        }else{
                             Swal.fire({
-                            icon: "success",
-                            text: '買家已付款',
-                            timer:1000,
-                            showConfirmButton:false
-                        });
-                    }else{
-                        Swal.fire({
-                            icon: "error",
-                            text: '買家未付款',
-                            timer:1000,
-                            showConfirmButton:false
-                        });
-                    }
-                    resetOrder()
-                    createOrder(orderData)
-                    renderOrder()
+                                icon: "error",
+                                text: '買家未付款',
+                                timer:1000,
+                                showConfirmButton:false
+                            });
+                        }
+                        deleteStatus = true 
+                        processStatus = true
+                        resetOrder()
+                        createOrder(orderData)
+                        renderOrder()
 
 
-                } catch (error) {
-                    // console.log(error.response.status,error.response.data.message)
-                    if(!error.response.data.status){
-                        Swal.fire({
-                            icon: "error",
-                            title: " ",
-                            text: `${error.response.data.message}`,
-                        });
+                    } catch (error) {
+                        // console.log(error.response.status,error.response.data.message)
+                        if(!error.response.data.status){
+                            Swal.fire({
+                                icon: "error",
+                                title: " ",
+                                text: `${error.response.data.message}`,
+                            });
 
+                        }
+                        deleteStatus = true 
+                        processStatus = true
                     }
                 }
+               
             }
             if(delBtn ==='del'){
-       
-                try {
-                    let delOneRes = await delOneOrderAdmin(dataId)
-                    // console.log('刪除回應',delOneRes.data.orders)
-                    orderData = delOneRes.data.orders
-                    if(delOneRes.data.status){
-                        Swal.fire({
-                            icon: "success",
-                            title: " ",
-                            text: `該筆訂單已刪除`,
-                        });
-                     }
-                    resetOrder()
-                    createOrder(orderData)
-                    renderOrder()
+                if(deleteStatus){
+                    deleteStatus = false
+                    processStatus = false
+                    try {
+                        let delOneRes = await delOneOrderAdmin(dataId)
+                        // console.log('刪除回應',delOneRes.data.orders)
+                        orderData = delOneRes.data.orders
+                        if(delOneRes.data.status){
+                            Swal.fire({
+                                icon: "success",
+                                title: " ",
+                                text: `該筆訂單已刪除`,
+                            });
+                        }
+                        deleteStatus = true 
+                        processStatus = true
+                        resetOrder()
+                        createOrder(orderData)
+                        renderOrder()
 
-                    //刪除 影響 orderData 內容，所以需要重新繪製 c3圖，當下根據所選的項目select 繪製
-                    if(sectionRevenue.value === '全品項營收比重' ){
-                        c3Generate( allRevenue() )
-                    }else{
-                        c3Generate( typeRevenue() )
-                    }
-                } catch (error) {
+                        //刪除 影響 orderData 內容，所以需要重新繪製 c3圖，當下根據所選的項目select 繪製
+                        if(sectionRevenue.value === '全品項營收比重' ){
+                            c3Generate( allRevenue() )
+                        }else{
+                            c3Generate( typeRevenue() )
+                        }
+                    } catch (error) {
 
-                    if(!error.response.data.status){
-                        Swal.fire({
-                            icon: "error",
-                            title: " ",
-                            text: `${error.response.data.message}`,
-                        });
+                        if(!error.response.data.status){
+                            Swal.fire({
+                                icon: "error",
+                                title: " ",
+                                text: `${error.response.data.message}`,
+                            });
 
-                    }
-                }  
+                        }
+                        deleteStatus = true 
+                        processStatus = true
+                    }  
+                }
+               
             }
         })
 
         discardAllBtn.addEventListener('click',async function(){
-            try {
-                let delAllRes = await delAllOrderAdmin()
-                if(delAllRes.data.status){
-                    Swal.fire({
-                        icon: "success",
-                        title: " ",
-                        text: `${delAllRes.data.message}`,
-                    });
-                }
-                orderData=[]
-                resetOrder()
-                createOrder(orderData)
-                renderOrder()
+            if(deleteStatus){
+                deleteStatus = false 
+                processStatus = false
+                try {
+                    let delAllRes = await delAllOrderAdmin()
+                    if(delAllRes.data.status){
+                        Swal.fire({
+                            icon: "success",
+                            title: " ",
+                            text: `${delAllRes.data.message}`,
+                        });
+                    }
+                    deleteStatus = true 
+                    processStatus = true
+                    orderData=[]
+                    resetOrder()
+                    createOrder(orderData)
+                    renderOrder()
 
-                //刪除 影響 orderData 內容，所以需要重新繪製 c3圖，產品全部清空，所以給予一空陣列繪製c3
-                c3Generate([])
+                    //刪除 影響 orderData 內容，所以需要重新繪製 c3圖，產品全部清空，所以給予一空陣列繪製c3
+                    c3Generate([])
 
-            } catch (error) {
-                if(!error.response.data.status){
-                    Swal.fire({
-                        icon: "error",
-                        title: " ",
-                        text: `${error.response.data.message}`,
-                    });
+                } catch (error) {
+                    if(!error.response.data.status){
+                        Swal.fire({
+                            icon: "error",
+                            title: " ",
+                            text: `${error.response.data.message}`,
+                        });
 
+                    }
+                    deleteStatus = true 
+                    processStatus = true
                 }
             }
+           
         })
 
         async function init(){
